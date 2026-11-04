@@ -13,9 +13,9 @@
 
 ---
 
-## 📖 Tentang Proyek
+## Tentang Web
 
-**Cardio-Bayes** adalah aplikasi web interaktif yang dikembangkan oleh **Kelompok 6 (Sistem Informasi)** untuk membantu melakukan deteksi dini risiko penyakit jantung. Aplikasi ini menerapkan algoritma klasifikasi probabilistik **Gaussian Naive Bayes** yang dilatih menggunakan dataset rekam medis kesehatan berskala besar (**68.611 data latih bersih**).
+**Cardio-Bayes** adalah aplikasi web interaktif yang saya kembangkan untuk membantu melakukan deteksi dini risiko penyakit jantung. Aplikasi ini menerapkan algoritma klasifikasi probabilistik **Gaussian Naive Bayes** yang dilatih menggunakan dataset rekam medis kesehatan berskala besar (**68.611 data latih bersih**).
 
 Melalui antarmuka modern yang responsif (dilengkapi *Dark Mode*), pengguna dapat memasukkan parameter klinis pribadi seperti usia, tekanan darah, indeks massa tubuh (IMT/BMI), kolesterol, glukosa, hingga kebiasaan gaya hidup untuk melihat probabilitas risiko kesehatan jantung secara instan.
 
@@ -35,20 +35,23 @@ Melalui antarmuka modern yang responsif (dilengkapi *Dark Mode*), pengguna dapat
 
 > *Berikut adalah dokumentasi antarmuka dari aplikasi Cardio-Bayes:*
 
-### 1. Halaman Autentikasi (Masuk & Daftar)
-![Halaman Autentikasi](screenshots/auth.png)
+### 1. Halaman Autentikasi (Masuk)
+![Halaman Autentikasi](assets/login.png)
+
+### 1. Halaman Autentikasi (Daftar)
+![Halaman Autentikasi](assets/daftar.png)
 
 ### 2. Antarmuka Utama & Form Input Data Pasien
-![Formulir Prediksi](screenshots/form.png)
+![Formulir Prediksi](assets/Tampilan_Web.png)
 
 ### 3. Hasil Analisis & Ringkasan Probabilitas Risiko
-![Hasil Prediksi](screenshots/result.png)
+![Hasil Prediksi](assets/Visualisasi.png)
 
 ### 4. Dashboard Eksplorasi Data (EDA) — Distribusi & Usia
-![Dashboard EDA 1](screenshots/eda1.png)
+![Dashboard EDA 1](assets/Data1.png)
 
 ### 5. Visualisasi Pengaruh Kolesterol & Tekanan Darah
-![Dashboard EDA 2](screenshots/eda2.png)
+![Dashboard EDA 2](assets/data2.png)
 
 ---
 
