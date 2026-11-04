@@ -35,11 +35,11 @@ Melalui antarmuka modern yang responsif (dilengkapi *Dark Mode*), pengguna dapat
 
 > *Berikut adalah dokumentasi antarmuka dari aplikasi Cardio-Bayes:*
 
-### 1. Halaman Autentikasi (Masuk)
-![Halaman Autentikasi](assets/login.png)
-
 ### 1. Halaman Autentikasi (Daftar)
 ![Halaman Autentikasi](assets/daftar.png)
+
+### 1. Halaman Autentikasi (Masuk)
+![Halaman Autentikasi](assets/login.png)
 
 ### 2. Antarmuka Utama & Form Input Data Pasien
 ![Formulir Prediksi](assets/Tampilan_Web.png)
