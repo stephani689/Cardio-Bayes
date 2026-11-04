@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cardio-Bayes — Deteksi Dini Risiko Kardiovaskular</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #d9edf1;
+  --surface: #ffffff;
+  --surface2: #cfe8ee;
+  --border: rgba(8,79,107,0.16);
+  --shadow: 0 1px 3px rgba(8,79,107,0.12), 0 1px 2px rgba(8,79,107,0.08);
+  --shadow-lg: 0 12px 30px rgba(8,79,107,0.20);
+  --text: #0b1f33;
+  --text2: #44606e;
+  --text3: #82a0ab;
+  --accent: #0891b2;
+  --accent-dark: #0c2d52;
+  --accent-light: #e0f2f7;
+  --danger: #ef4444;
+  --danger-light: #fef2f2;
+  --success: #059669;
+  --success-light: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-light: #fffbeb;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font: 'Inter', -apple-system, sans-serif;
+  --font-display: 'Sora', 'Inter', sans-serif;
+  --grad-clinical: linear-gradient(135deg, #0c2d52 0%, #0c6478 55%, #22d3ee 100%);
+  --grad-accent: linear-gradient(135deg, #0c4f6b, #06b6d4);
+  --glow-cyan: 0 8px 26px rgba(6,182,212,0.35);
+}
+html.dark {
+  --bg: #071826;
+  --surface: #0e2435;
+  --surface2: #071826;
+  --border: rgba(8,145,178,0.18);
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.4);
+  --text: #eaf6f8;
+  --text2: #7fa3b3;
+  --text3: #3d5d6b;
+  --accent-light: #0c3a47;
+  --danger-light: #3f1515;
+  --success-light: #0f3322;
+  --warning-light: #3f2a00;
+}
+
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; transition: background .3s, color .3s; }
+
+/* NAV */
+nav { background: var(--accent-dark); border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(12,45,82,0.25); }
+.nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.nav-brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 17px; color: #fff; }
+.nav-brand .heart { color: #ff8a8a; font-size: 19px; }
+.nav-brand small { font-weight: 600; font-size: 11px; color: rgba(255,255,255,0.55); display: block; }
+.nav-tabs { display: flex; gap: 4px; overflow-x: auto; }
+.nav-tab { padding: 7px 14px; border-radius: 8px; border: none; background: transparent; color: rgba(255,255,255,0.65); font-size: 13.5px; font-weight: 600; cursor: pointer; transition: all .2s; font-family: var(--font); white-space: nowrap; }
+.nav-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.nav-tab.active { background: var(--grad-accent); color: #fff; }
+.nav-right { display: flex; align-items: center; gap: 8px; }
+.theme-btn { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); cursor: pointer; font-size: 12.5px; font-weight: 600; font-family: var(--font); display: flex; align-items: center; justify-content: center; transition: all .2s; color: #fff; flex-shrink: 0; white-space: nowrap; }
+.theme-btn:hover { background: rgba(255,255,255,0.18); }
+.user-pill { color: rgba(255,255,255,0.85) !important; }
+.logout-btn { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.18) !important; color: #fff !important; }
+.logout-btn:hover { background: rgba(239,68,68,0.25) !important; border-color: #ef4444 !important; color: #fff !important; }
+
+/* PAGES */
+.page { display: none; }
+.page.active { display: block; animation: fadeIn .3s ease; }
+.container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+/* HERO */
+.hero { background: var(--grad-clinical); color: #fff; text-align: center; padding: 56px 24px 44px; box-shadow: inset 0 -40px 60px -40px rgba(34,211,238,0.45); }
+.hero-badge { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 100px; padding: 4px 14px; font-size: 12px; font-weight: 600; margin-bottom: 18px; backdrop-filter: blur(4px); }
+.hero h1 { font-family: var(--font-display); font-size: clamp(26px, 5vw, 42px); font-weight: 800; margin-bottom: 14px; line-height: 1.2; letter-spacing: -0.01em; }
+.hero p { font-size: 15.5px; opacity: .88; max-width: 560px; margin: 0 auto; line-height: 1.6; }
+
+/* STATS STRIP */
+.stats-inner { max-width: 1100px; margin: 0 auto; padding: 18px 24px; display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+.stat-item { text-align: center; }
+.stat-val { font-size: 23px; font-weight: 800; color: var(--accent); }
+.stat-lbl { font-size: 11.5px; color: var(--text2); margin-top: 2px; }
+
+/* CARDS */
+.card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px; position: relative; overflow: hidden; }
+.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--grad-accent); }
+.metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--grad-accent); }
+.card-header { margin-bottom: 18px; }
+.card-title { font-size: 15.5px; font-weight: 700; color: var(--text); }
+.card-subtitle { font-size: 12.5px; color: var(--text2); margin-top: 3px; }
+
+/* LAYOUT */
+.page-layout { display: grid; grid-template-columns: 1fr; gap: 18px; }
+
+/* FORM */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 12.5px; font-weight: 600; color: var(--text2); display: flex; align-items: center; gap: 6px; }
+.form-input, .form-select { height: 38px; padding: 0 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface2); color: var(--text); font-size: 13.5px; font-family: var(--font); transition: border-color .2s; outline: none; width: 100%; }
+.form-input:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(13,148,136,0.18); }
+.form-hint { font-size: 10.5px; color: var(--text3); }
+
+.predict-btn { width: 100%; height: 50px; background: var(--grad-accent); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 15.5px; font-weight: 700; font-family: var(--font); cursor: pointer; margin-top: 22px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all .2s; box-shadow: 0 4px 12px rgba(8,145,178,0.35); }
+.predict-btn:hover { transform: translateY(-2px); box-shadow: var(--glow-cyan); }
+
+/* RESULT */
+.result-box { border-radius: var(--radius); padding: 24px; display: none; margin-top: 18px; animation: fadeIn .4s ease; }
+.result-box.show { display: block; }
+.result-box.danger { background: var(--danger-light); border: 2px solid var(--danger); }
+.result-box.success { background: var(--success-light); border: 2px solid var(--success); }
+.result-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.result-top { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+.result-emoji { font-size: 36px; }
+.result-title { font-size: 18px; font-weight: 800; }
+.result-box.danger .result-title { color: var(--danger); }
+.result-box.success .result-title { color: #16a34a; }
+.result-subtitle { font-size: 12.5px; color: var(--text2); margin-top: 2px; }
+
+.prob-bars { margin: 18px 0; }
+.prob-row { margin-bottom: 11px; }
+.prob-label { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; margin-bottom: 5px; }
+.prob-bar-bg { height: 9px; background: var(--border); border-radius: 100px; overflow: hidden; }
+.prob-bar-fill { height: 100%; border-radius: 100px; transition: width .8s cubic-bezier(.34,1.56,.64,1); width: 0%; }
+.prob-bar-fill.danger { background: linear-gradient(90deg, #f97316, #ef4444); }
+.prob-bar-fill.success { background: linear-gradient(90deg, #22c55e, #10b981); }
+
+.rec-list { list-style: none; display: flex; flex-direction: column; gap: 7px; margin-top: 14px; }
+.rec-item { display: flex; align-items: flex-start; gap: 9px; font-size: 12.5px; line-height: 1.5; color: var(--text2); padding-left: 14px; position: relative; }
+.rec-item::before { content: ''; position: absolute; left: 0; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+.disclaimer { background: var(--warning-light); border: 1px solid var(--warning); border-radius: var(--radius-sm); padding: 11px 15px; font-size: 11.5px; color: #92400e; display: flex; gap: 8px; align-items: flex-start; margin-top: 14px; }
+html.dark .disclaimer { color: #fde68a; }
+
+.section-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.section-desc { font-size: 13.5px; color: var(--text2); margin-bottom: 22px; }
+
+.chart-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(440px,1fr)); gap: 18px; }
+@media (max-width: 768px) { .chart-grid { grid-template-columns: 1fr; } .stats-inner { grid-template-columns: repeat(2,1fr); } }
+.chart-wrap { position: relative; height: 260px; }
+
+.metrics-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 22px; }
+@media (max-width: 768px) { .metrics-grid { grid-template-columns: repeat(2,1fr); } }
+.metric-card { background: var(--surface); border-radius: var(--radius); padding: 18px; text-align: center; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+.metric-val { font-size: 28px; font-weight: 800; color: var(--accent); }
+.metric-lbl { font-size: 12.5px; color: var(--text2); margin-top: 4px; font-weight: 500; }
+.metric-desc { font-size: 10.5px; color: var(--text3); margin-top: 2px; }
+
+.cm-wrap { overflow-x: auto; }
+.cm-table { border-collapse: collapse; width: 100%; }
+.cm-table th, .cm-table td { padding: 13px; text-align: center; font-size: 13px; font-weight: 600; }
+.cm-table th { color: var(--text2); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.cm-tn, .cm-tp { background: rgba(34,197,94,0.15); color: #16a34a; font-size: 19px; }
+.cm-fp, .cm-fn { background: rgba(239,68,68,0.15); color: #dc2626; font-size: 19px; }
+
+.feature-table { width: 100%; border-collapse: collapse; }
+.feature-table th, .feature-table td { padding: 9px 13px; text-align: left; font-size: 12.5px; border-bottom: 1px solid var(--border); }
+.feature-table th { font-weight: 600; color: var(--text2); background: var(--surface2); }
+.feature-table tr:hover td { background: var(--surface2); }
+
+.badge { display: inline-block; padding: 2px 10px; border-radius: 100px; font-size: 10.5px; font-weight: 600; }
+.badge-blue { background: rgba(59,130,246,0.15); color: var(--accent); }
+.badge-green { background: rgba(34,197,94,0.15); color: #16a34a; }
+
+.algo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 14px; margin-top: 18px; }
+.algo-step { background: var(--surface2); border-radius: var(--radius-sm); padding: 15px; display: flex; gap: 13px; }
+.algo-num { width: 30px; height: 30px; border-radius: 8px; background: var(--grad-accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+.algo-text h4 { font-size: 13.5px; font-weight: 700; margin-bottom: 3px; }
+.algo-text p { font-size: 11.5px; color: var(--text2); line-height: 1.5; }
+
+footer { text-align: center; padding: 22px; color: var(--text3); font-size: 11.5px; border-top: 1px solid var(--border); }
+
+.quickfill-btn { padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: var(--font); font-size: 12.5px; width: 100%; text-align: left; }
+.quickfill-btn.ok { border: 1px solid var(--success); background: var(--success-light); color: #16a34a; }
+.quickfill-btn.warn { border: 1px solid var(--danger); background: var(--danger-light); color: var(--danger); }
+
+/* RING GAUGE */
+.ring-wrap { position: relative; width: 84px; height: 84px; margin: 0 auto 10px; }
+.ring-wrap.lg { width: 132px; height: 132px; margin: 0 auto 6px; }
+.ring-svg circle.ring-progress { transition: stroke-dashoffset 1.1s cubic-bezier(.34,1.56,.64,1); }
+.ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ring-val { font-family: var(--font-display); font-weight: 800; font-size: 16px; color: var(--text); line-height: 1; }
+.ring-wrap.lg .ring-val { font-size: 30px; }
+.ring-tag { font-size: 9.5px; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; margin-top: 2px; }
+
+/* ICON BADGE (gradient circle) */
+.icon-badge { width: 30px; height: 30px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; background: var(--grad-accent); color: #fff; flex-shrink: 0; box-shadow: 0 3px 8px rgba(8,145,178,0.3); }
+
+/* CARD LIFT */
+.card { transition: transform .2s ease, box-shadow .2s ease; }
+.card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.metric-card { transition: transform .2s ease, box-shadow .2s ease; }
+.metric-card:hover { transform: translateY(-3px); }
+
+/* CARD TOP ACCENT */
+.card-header.with-accent { position: relative; padding-top: 4px; }
+.card-accent-bar { height: 4px; width: 36px; border-radius: 4px; background: var(--grad-accent); margin-bottom: 12px; }
+
+@keyframes fadeIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+
+/* AUTH SCREEN */
+#authScreen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--grad-clinical); }
+.auth-card { width: 100%; max-width: 400px; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 34px 30px; }
+.auth-logo { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; font-size: 21px; color: var(--text); }
+.auth-logo .heart { color: var(--danger); font-size: 22px; }
+.auth-sub { text-align: center; color: var(--text2); font-size: 12.5px; margin-top: 6px; margin-bottom: 24px; }
+.auth-tabs { display: flex; background: var(--surface2); border-radius: 10px; padding: 4px; margin-bottom: 22px; }
+.auth-tab { flex: 1; text-align: center; padding: 9px; border-radius: 8px; border: none; background: transparent; font-weight: 700; font-size: 13.5px; cursor: pointer; color: var(--text2); font-family: var(--font); transition: all .2s; }
+.auth-tab.active { background: var(--grad-accent); color: #fff; }
+.auth-form { display: none; flex-direction: column; gap: 14px; }
+.auth-form.active { display: flex; }
+.auth-field label { font-size: 12.5px; font-weight: 600; color: var(--text2); display: block; margin-bottom: 6px; }
+.auth-error { font-size: 12px; color: var(--danger); min-height: 16px; }
+.auth-success { font-size: 12px; color: #16a34a; min-height: 16px; }
+.auth-submit { width: 100%; height: 46px; background: var(--grad-accent); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 14.5px; font-weight: 700; font-family: var(--font); cursor: pointer; margin-top: 4px; transition: all .2s; }
+.auth-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(8,145,178,0.35); }
+.auth-note { font-size: 11px; color: var(--text3); text-align: center; margin-top: 16px; line-height: 1.6; }
+#appShell { display: none; }
+.user-pill { font-size: 12px; font-weight: 600; color: var(--text2); padding: 0 6px; white-space: nowrap; }
+.logout-btn { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--text); transition: all .2s; font-family: var(--font); flex-shrink: 0; }
+.logout-btn:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
+</style>
+</head>
+<body>
+
+<!-- ======================= AUTH SCREEN ======================= -->
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo"><span class="heart"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span> Cardio-Bayes</div>
+    <div class="auth-sub">Kelompok 6 &middot; Sistem Pakar Deteksi Kardiovaskular</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="gantiTabAuth('login')">Masuk</button>
+      <button class="auth-tab" id="tabRegister" onclick="gantiTabAuth('register')">Daftar</button>
+    </div>
+
+    <form class="auth-form active" id="formLogin" onsubmit="event.preventDefault(); prosesLogin();">
+      <div class="auth-field">
+        <label>Email</label>
+        <input type="email" id="login-email" class="form-input" placeholder="nama@email.com" required>
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input type="password" id="login-password" class="form-input" placeholder="Masukkan password" required>
+      </div>
+      <div class="auth-error" id="login-error"></div>
+      <button type="submit" class="auth-submit">Masuk</button>
+    </form>
+
+    <form class="auth-form" id="formRegister" onsubmit="event.preventDefault(); prosesRegister();">
+      <div class="auth-field">
+        <label>Nama Lengkap</label>
+        <input type="text" id="reg-nama" class="form-input" placeholder="Nama Anda" required>
+      </div>
+      <div class="auth-field">
+        <label>Email</label>
+        <input type="email" id="reg-email" class="form-input" placeholder="nama@email.com" required>
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input type="password" id="reg-password" class="form-input" placeholder="Minimal 6 karakter" required>
+      </div>
+      <div class="auth-field">
+        <label>Konfirmasi Password</label>
+        <input type="password" id="reg-password2" class="form-input" placeholder="Ulangi password" required>
+      </div>
+      <div class="auth-error" id="reg-error"></div>
+      <div class="auth-success" id="reg-success"></div>
+      <button type="submit" class="auth-submit">Daftar Akun</button>
+    </form>
+
+    <div class="auth-note">Akun tersimpan di browser ini saja (localStorage) untuk keperluan demo &amp; edukasi — bukan sistem login produksi.</div>
+  </div>
+</div>
+
+<!-- ======================= APLIKASI UTAMA ======================= -->
+<div id="appShell">
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand"><span class="icon-badge"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span> Cardio-Bayes <small>Kelompok 6 &middot; Sistem Informasi</small></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('prediksi', this)">Prediksi</button>
+      <button class="nav-tab" onclick="showPage('eda', this)">Data &amp; EDA</button>
+    </div>
+    <div class="nav-right">
+      <span class="user-pill" id="userPill"></span>
+      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Ganti tema">Mode Gelap</button>
+      <button class="logout-btn" onclick="prosesLogout()">Keluar</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ======================= PAGE: PREDIKSI ======================= -->
+<div id="page-prediksi" class="page active">
+  <div class="hero">
+    <div class="hero-badge">Gaussian Naive Bayes &middot; 68.611 Data Latih Bersih</div>
+    <h1>Deteksi Dini Risiko Kardiovaskular</h1>
+    <p>Masukkan data kesehatan pasien untuk mendapatkan estimasi risiko penyakit jantung, dihitung dengan algoritma Gaussian Naive Bayes dari data klinis nyata.</p>
+  </div>
+
+  <div class="container">
+    <div class="page-layout">
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Data Pasien</div>
+            <div class="card-subtitle">Lengkapi seluruh data klinis &amp; gaya hidup di bawah ini</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Usia (tahun)</label>
+              <input type="number" id="f-age" class="form-input" min="18" max="100" placeholder="cth: 50">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Jenis Kelamin</label>
+              <select id="f-gender" class="form-select">
+                <option value="">-- Pilih --</option>
+                <option value="1">Perempuan</option>
+                <option value="2">Laki-laki</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tinggi Badan (cm)</label>
+              <input type="number" id="f-height" class="form-input" min="100" max="220" placeholder="cth: 165" oninput="hitungIMT()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Berat Badan (kg)</label>
+              <input type="number" id="f-weight" class="form-input" min="30" max="200" step="0.1" placeholder="cth: 70" oninput="hitungIMT()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Indeks Massa Tubuh (IMT)</label>
+              <input type="text" id="f-bmi" class="form-input" readonly placeholder="Otomatis dihitung" style="background:var(--surface2);color:var(--text);cursor:default;font-weight:600;">
+              <span class="form-hint" id="f-bmi-cat"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tensi Sistolik (mmHg)</label>
+              <input type="number" id="f-aphi" class="form-input" min="60" max="260" placeholder="cth: 120">
+              <span class="form-hint">Angka atas tekanan darah</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tensi Diastolik (mmHg)</label>
+              <input type="number" id="f-aplo" class="form-input" min="30" max="200" placeholder="cth: 80">
+              <span class="form-hint">Angka bawah tekanan darah</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kolesterol</label>
+              <select id="f-chol" class="form-select">
+                <option value="">-- Pilih --</option>
+                <option value="1">Normal</option>
+                <option value="2">Di atas normal</option>
+                <option value="3">Jauh di atas normal</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Glukosa</label>
+              <select id="f-gluc" class="form-select">
+                <option value="">-- Pilih --</option>
+                <option value="1">Normal</option>
+                <option value="2">Di atas normal</option>
+                <option value="3">Jauh di atas normal</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Merokok?</label>
+              <select id="f-smoke" class="form-select">
+                <option value="">-- Pilih --</option>
+                <option value="0">Tidak</option>
+                <option value="1">Ya</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Konsumsi Alkohol?</label>
+              <select id="f-alco" class="form-select">
+                <option value="">-- Pilih --</option>
+                <option value="0">Tidak</option>
+                <option value="1">Ya</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Aktif Berolahraga?</label>
+              <select id="f-active" class="form-select">
+                <option value="">-- Pilih --</option>
+                <option value="1">Ya</option>
+                <option value="0">Tidak</option>
+              </select>
+            </div>
+          </div>
+          <button class="predict-btn" onclick="prediksi()">Prediksi Risiko Sekarang</button>
+        </div>
+
+        <div class="result-box" id="result-box">
+          <div class="result-top">
+            <div id="result-ring"></div>
+            <div class="result-header" style="margin-bottom:0;">
+              <div>
+                <div class="result-title" id="res-title">—</div>
+                <div class="result-subtitle" id="res-subtitle">—</div>
+              </div>
+            </div>
+          </div>
+          <div class="prob-bars">
+            <div class="prob-row">
+              <div class="prob-label"><span>Sehat / Risiko Rendah</span><span id="prob-healthy-pct">0%</span></div>
+              <div class="prob-bar-bg"><div class="prob-bar-fill success" id="prob-healthy-bar"></div></div>
+            </div>
+            <div class="prob-row">
+              <div class="prob-label"><span>Berisiko Kardiovaskular</span><span id="prob-risk-pct">0%</span></div>
+              <div class="prob-bar-bg"><div class="prob-bar-fill danger" id="prob-risk-bar"></div></div>
+            </div>
+          </div>
+          <div id="bmi-info" style="font-size:12.5px;color:var(--text2);margin-bottom:6px;"></div>
+          <ul class="rec-list" id="rec-list"></ul>
+          <div class="disclaimer"><span>Hasil ini bersifat estimasi statistik untuk tujuan edukasi, bukan diagnosis medis. Konsultasikan dengan tenaga medis profesional untuk evaluasi lebih lanjut.</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ======================= PAGE: EDA ======================= -->
+<div id="page-eda" class="page">
+  <div class="container">
+    <div class="section-title">Eksplorasi Data (EDA)</div>
+    <div class="section-desc">Pola &amp; distribusi dari 68.611 baris data kardiovaskular bersih yang dipakai melatih model</div>
+
+    <div class="card" style="margin-bottom:18px;">
+      <div class="card-header">
+        <div class="card-title">Distribusi Target — Status Kardiovaskular</div>
+        <div class="card-subtitle">Perbandingan jumlah pasien sehat vs berisiko dalam data latih</div>
+      </div>
+      <div style="display:flex;gap:30px;align-items:center;flex-wrap:wrap;">
+        <div style="width:190px;height:190px;position:relative;"><canvas id="chart-target"></canvas></div>
+        <div id="target-legend" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Kelompok Usia &amp; Risiko Jantung</div><div class="card-subtitle">Jumlah kasus per kelompok umur</div></div>
+        <div class="chart-wrap"><canvas id="chart-age"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Kolesterol &amp; Risiko Jantung</div><div class="card-subtitle">Pengaruh level kolesterol</div></div>
+        <div class="chart-wrap"><canvas id="chart-chol"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Kategori Tekanan Darah &amp; Risiko</div><div class="card-subtitle">Berdasarkan kategori tensi sistolik/diastolik</div></div>
+        <div class="chart-wrap"><canvas id="chart-bp"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Kategori BMI &amp; Risiko Jantung</div><div class="card-subtitle">Indeks massa tubuh pasien</div></div>
+        <div class="chart-wrap"><canvas id="chart-bmi"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Jenis Kelamin &amp; Risiko</div><div class="card-subtitle">Perbandingan risiko per gender</div></div>
+        <div class="chart-wrap"><canvas id="chart-gender"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Gaya Hidup &amp; % Risiko</div><div class="card-subtitle">Persentase berisiko per kategori gaya hidup</div></div>
+        <div class="chart-wrap"><canvas id="chart-lifestyle"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= PAGE: MODEL ======================= -->
+
+<footer>Cardio-Bayes © 2026 &middot; Kelompok 6, Sistem Informasi &middot; Gaussian Naive Bayes &middot; Dataset Cardiovascular Disease (70K rekam medis) &middot; Dibuat untuk keperluan edukasi</footer>
+
+</div><!-- /#appShell -->
+
+<script>
+// =============================
+// AUTENTIKASI (demo, client-side, localStorage)
+// =============================
+const AUTH_USERS_KEY = 'cardiobayes_users';
+const AUTH_SESSION_KEY = 'cardiobayes_session';
+
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem(AUTH_USERS_KEY)) || []; } catch(e) { return []; }
+}
+function saveUsers(users) { localStorage.setItem(AUTH_USERS_KEY, JSON.stringify(users)); }
+
+function gantiTabAuth(tab) {
+  document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+  document.getElementById('formLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('formRegister').classList.toggle('active', tab === 'register');
+  document.getElementById('login-error').textContent = '';
+  document.getElementById('reg-error').textContent = '';
+  document.getElementById('reg-success').textContent = '';
+}
+
+function prosesRegister() {
+  const nama = document.getElementById('reg-nama').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const pass = document.getElementById('reg-password').value;
+  const pass2 = document.getElementById('reg-password2').value;
+  const errBox = document.getElementById('reg-error');
+  const okBox = document.getElementById('reg-success');
+  errBox.textContent = ''; okBox.textContent = '';
+
+  if (pass.length < 6) { errBox.textContent = 'Password minimal 6 karakter.'; return; }
+  if (pass !== pass2) { errBox.textContent = 'Konfirmasi password tidak cocok.'; return; }
+
+  const users = getUsers();
+  if (users.some(u => u.email === email)) { errBox.textContent = 'Email ini sudah terdaftar. Silakan masuk.'; return; }
+
+  users.push({ nama, email, pass });
+  saveUsers(users);
+  okBox.textContent = 'Akun berhasil dibuat! Silakan masuk.';
+  document.getElementById('formRegister').reset();
+  setTimeout(() => gantiTabAuth('login'), 900);
+}
+
+function prosesLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pass = document.getElementById('login-password').value;
+  const errBox = document.getElementById('login-error');
+  errBox.textContent = '';
+
+  const users = getUsers();
+  const user = users.find(u => u.email === email && u.pass === pass);
+  if (!user) { errBox.textContent = 'Email atau password salah, atau belum punya akun — silakan daftar dulu.'; return; }
+
+  localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ nama: user.nama, email: user.email }));
+  masukKeAplikasi(user.nama);
+}
+
+function prosesLogout() {
+  localStorage.removeItem(AUTH_SESSION_KEY);
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('formLogin').reset();
+  document.getElementById('formRegister').reset();
+  gantiTabAuth('login');
+}
+
+function masukKeAplikasi(nama) {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'block';
+  document.getElementById('userPill').textContent = 'Halo, ' + nama;
+  setTimeout(animateRings, 50);
+}
+
+// Cek sesi yang tersimpan saat halaman dibuka
+(function cekSesi() {
+  document.addEventListener('DOMContentLoaded', () => {
+    try {
+      const session = JSON.parse(localStorage.getItem(AUTH_SESSION_KEY));
+      if (session && session.nama) { masukKeAplikasi(session.nama); }
+    } catch(e) {}
+  });
+})();
+
+// =============================
+// RING GAUGE (helper)
+// =============================
+let _ringCounter = 0;
+function ringWidget(percent, colorA, colorB, opts) {
+  opts = opts || {};
+  const size = opts.size || 84;
+  const stroke = opts.stroke || 8;
+  const big = opts.big || false;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const pct = Math.max(0, Math.min(100, percent));
+  const offset = c * (1 - pct/100);
+  const id = 'ringGrad' + (_ringCounter++);
+  return `<div class="ring-wrap${big ? ' lg' : ''}">
+    <svg class="ring-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="${colorA}"/><stop offset="1" stop-color="${colorB}"/>
+      </linearGradient></defs>
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--border)" stroke-width="${stroke}"/>
+      <circle class="ring-progress" cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="url(#${id})"
+        stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c}"
+        data-offset="${offset}" transform="rotate(-90 ${size/2} ${size/2})"/>
+    </svg>
+    <div class="ring-center"><div class="ring-val">${pct.toFixed(1)}%</div></div>
+  </div>`;
+}
+function animateRings() {
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.querySelectorAll('.ring-progress[data-offset]').forEach(el => {
+      el.style.strokeDashoffset = el.dataset.offset;
+    });
+  }));
+}
+
+const MODEL_DATA = {
+  "model": {
+    "feature_cols": [
+      "age_years",
+      "gender",
+      "height",
+      "weight",
+      "bmi",
+      "ap_hi",
+      "ap_lo",
+      "cholesterol",
+      "gluc",
+      "smoke",
+      "alco",
+      "active"
+    ],
+    "class_prior": [
+      0.505247,
+      0.494753
+    ],
+    "theta": [
+      [
+        51.6658,
+        1.34393,
+        164.49957,
+        71.61053,
+        26.49004,
+        119.62199,
+        78.13944,
+        1.21614,
+        1.17377,
+        0.09177,
+        0.05452,
+        0.81877
+      ],
+      [
+        54.91519,
+        1.35278,
+        164.37215,
+        76.7219,
+        28.44509,
+        133.76024,
+        84.4873,
+        1.51252,
+        1.27743,
+        0.08274,
+        0.05067,
+        0.78922
+      ]
+    ],
+    "var": [
+      [
+        45.75516,
+        0.22564,
+        60.89222,
+        176.14742,
+        23.23881,
+        158.47124,
+        66.92326,
+        0.27861,
+        0.25702,
+        0.08335,
+        0.05155,
+        0.14839
+      ],
+      [
+        40.22938,
+        0.22833,
+        63.93751,
+        220.0626,
+        29.96088,
+        298.24856,
+        92.15689,
+        0.59975,
+        0.38982,
+        0.0759,
+        0.0481,
+        0.16635
+      ]
+    ]
+  },
+  "metrics": {
+    "accuracy": 0.7126,
+    "precision": 0.7564,
+    "recall": 0.6181,
+    "f1": 0.6803,
+    "confusion_matrix": [
+      [
+        5583,
+        1351
+      ],
+      [
+        2593,
+        4196
+      ]
+    ],
+    "n_train": 54888,
+    "n_test": 13723,
+    "total_data": 68611,
+    "cardio_positive": 33945,
+    "cardio_negative": 34666
+  },
+  "eda": {
+    "target_dist": {
+      "Sehat": 34666,
+      "Berisiko": 33945
+    },
+    "age": {
+      "labels": [
+        "<40",
+        "40-44",
+        "45-49",
+        "50-54",
+        "55-59",
+        "60-64",
+        "65+"
+      ],
+      "no_cardio": [
+        1420,
+        5714,
+        6419,
+        9037,
+        7916,
+        4160,
+        0
+      ],
+      "cardio": [
+        438,
+        2516,
+        4768,
+        7712,
+        10169,
+        8342,
+        0
+      ]
+    },
+    "cholesterol": {
+      "labels": [
+        "Normal",
+        "Di atas normal",
+        "Jauh di atas normal"
+      ],
+      "no_cardio": [
+        29046,
+        3752,
+        1868
+      ],
+      "cardio": [
+        22403,
+        5545,
+        5997
+      ]
+    },
+    "blood_pressure": {
+      "labels": [
+        "Normal",
+        "Meningkat",
+        "Hipertensi 1",
+        "Hipertensi 2"
+      ],
+      "no_cardio": [
+        7427,
+        2103,
+        21917,
+        3219
+      ],
+      "cardio": [
+        2111,
+        1004,
+        17827,
+        13003
+      ]
+    },
+    "bmi": {
+      "labels": [
+        "Underweight",
+        "Normal",
+        "Overweight",
+        "Obesitas"
+      ],
+      "no_cardio": [
+        463,
+        15306,
+        12174,
+        6723
+      ],
+      "cardio": [
+        173,
+        10116,
+        12448,
+        11208
+      ]
+    },
+    "gender": {
+      "labels": [
+        "Perempuan",
+        "Laki-laki"
+      ],
+      "no_cardio": [
+        22697,
+        11969
+      ],
+      "cardio": [
+        21993,
+        11952
+      ]
+    },
+    "lifestyle": {
+      "labels": [
+        "Tidak Merokok",
+        "Merokok",
+        "Tidak Alkohol",
+        "Konsumsi Alkohol",
+        "Tidak Aktif",
+        "Aktif Olahraga"
+      ],
+      "cardio_rate": [
+        49.7,
+        46.8,
+        49.6,
+        47.7,
+        53.3,
+        48.5
+      ]
+    }
+  }
+};
+
+// =============================
+// TEMA (terang/gelap)
+// =============================
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.classList.toggle('dark');
+  document.getElementById('themeBtn').textContent = isDark ? 'Mode Terang' : 'Mode Gelap';
+  localStorage.setItem('cardiobayes_theme', isDark ? 'dark' : 'light');
+}
+(function() {
+  const saved = localStorage.getItem('cardiobayes_theme');
+  if (saved === 'dark') {
+    document.documentElement.classList.add('dark');
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('themeBtn').textContent = 'Mode Terang';
+    });
+  }
+})();
+
+// =============================
+// NAVIGASI TAB
+// =============================
+let edaRendered = false;
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'eda' && !edaRendered) { renderEDA(); edaRendered = true; }
+}
+
+// Isi stat strip begitu halaman dimuat
+window.addEventListener('DOMContentLoaded', () => {
+  // rings rendered on login via masukKeAplikasi -> animateRings
+});
+
+// =============================
+// NAIVE BAYES — Gaussian PDF
+// =============================
+function gaussianPDF(x, mean, variance) {
+  const eps = 1e-9;
+  const v = variance + eps;
+  return Math.exp(-0.5 * Math.pow(x - mean, 2) / v) / Math.sqrt(2 * Math.PI * v);
+}
+
+function prediksi() {
+  const age = parseFloat(document.getElementById('f-age').value);
+  const gender = parseFloat(document.getElementById('f-gender').value);
+  const height = parseFloat(document.getElementById('f-height').value);
+  const weight = parseFloat(document.getElementById('f-weight').value);
+  const aphi = parseFloat(document.getElementById('f-aphi').value);
+  const aplo = parseFloat(document.getElementById('f-aplo').value);
+  const chol = parseFloat(document.getElementById('f-chol').value);
+  const gluc = parseFloat(document.getElementById('f-gluc').value);
+  const smoke = parseFloat(document.getElementById('f-smoke').value);
+  const alco = parseFloat(document.getElementById('f-alco').value);
+  const active = parseFloat(document.getElementById('f-active').value);
+
+  const vals = [age, gender, height, weight, aphi, aplo, chol, gluc, smoke, alco, active];
+  if (vals.some(v => isNaN(v))) { alert('Mohon lengkapi semua data terlebih dahulu!'); return; }
+
+  const bmi = weight / Math.pow(height/100, 2);
+  const features = [age, gender, height, weight, bmi, aphi, aplo, chol, gluc, smoke, alco, active];
+
+  const priors = MODEL_DATA.model.class_prior;
+  const thetas = MODEL_DATA.model.theta;
+  const vars = MODEL_DATA.model.var;
+
+  const logProbs = priors.map((prior, ci) => {
+    let logP = Math.log(prior + 1e-10);
+    features.forEach((x, fi) => { logP += Math.log(gaussianPDF(x, thetas[ci][fi], vars[ci][fi]) + 1e-300); });
+    return logP;
+  });
+  const maxLog = Math.max(...logProbs);
+  const expProbs = logProbs.map(lp => Math.exp(lp - maxLog));
+  const sumExp = expProbs.reduce((a,b) => a+b, 0);
+  const probs = expProbs.map(e => e/sumExp);
+
+  const probSehat = probs[0], probRisiko = probs[1];
+  const isRisk = probRisiko > 0.5;
+
+  const box = document.getElementById('result-box');
+  box.className = 'result-box show ' + (isRisk ? 'danger' : 'success');
+  document.getElementById('res-title').textContent = isRisk ? 'Berisiko Penyakit Jantung' : 'Risiko Rendah';
+  document.getElementById('res-subtitle').textContent = isRisk
+    ? `Probabilitas risiko: ${(probRisiko*100).toFixed(1)}% — disarankan konsultasi dengan dokter`
+    : `Probabilitas sehat: ${(probSehat*100).toFixed(1)}% — pertahankan gaya hidup sehat`;
+
+  const ringPct = isRisk ? probRisiko*100 : probSehat*100;
+  const ringColors = isRisk ? ['#f97316','#ef4444'] : ['#10b981','#059669'];
+  document.getElementById('result-ring').innerHTML = ringWidget(ringPct, ringColors[0], ringColors[1], { big: true, size: 132, stroke: 11 });
+  setTimeout(animateRings, 30);
+
+  setTimeout(() => {
+    document.getElementById('prob-healthy-bar').style.width = (probSehat*100).toFixed(1) + '%';
+    document.getElementById('prob-risk-bar').style.width = (probRisiko*100).toFixed(1) + '%';
+    document.getElementById('prob-healthy-pct').textContent = (probSehat*100).toFixed(1) + '%';
+    document.getElementById('prob-risk-pct').textContent = (probRisiko*100).toFixed(1) + '%';
+  }, 80);
+
+  const bmiCat = bmi < 18.5 ? 'Kurus' : bmi < 25 ? 'Normal' : bmi < 30 ? 'Kelebihan Berat Badan' : 'Obesitas';
+  document.getElementById('bmi-info').innerHTML = `<strong>BMI:</strong> ${bmi.toFixed(1)} kg/m\u00B2 — <em>${bmiCat}</em>`;
+
+  const recs = [];
+  if (isRisk) {
+    recs.push('Segera konsultasikan kondisi ini dengan dokter atau kardiolog');
+    if (aphi >= 130 || aplo >= 80) recs.push('Tensi Anda tergolong tinggi — pantau tekanan darah secara rutin');
+    if (chol >= 2) recs.push('Kurangi lemak jenuh, perbanyak serat &amp; sayuran');
+    if (bmi >= 25) recs.push('Turunkan berat badan secara bertahap lewat olahraga teratur');
+    if (smoke == 1) recs.push('Berhenti merokok dapat menurunkan risiko kardiovaskular secara signifikan');
+    if (active == 0) recs.push('Mulai aktivitas fisik ringan minimal 30 menit per hari');
+  } else {
+    recs.push('Pertahankan pola makan sehat dan rutinitas olahraga Anda');
+    recs.push('Tetap lakukan pemeriksaan kesehatan berkala setiap 1–2 tahun');
+    if (bmi >= 25) recs.push('BMI sedikit di atas normal — jaga porsi makan dan tetap aktif');
+    if (smoke == 1) recs.push('Pertimbangkan berhenti merokok untuk kesehatan jangka panjang');
+  }
+  document.getElementById('rec-list').innerHTML = recs.map(t => `<li class="rec-item">${t}</li>`).join('');
+
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// =============================
+// HITUNG IMT OTOMATIS
+// =============================
+function hitungIMT() {
+  const h = parseFloat(document.getElementById('f-height').value);
+  const w = parseFloat(document.getElementById('f-weight').value);
+  const bmiField = document.getElementById('f-bmi');
+  const bmiCatEl = document.getElementById('f-bmi-cat');
+  if (!isNaN(h) && !isNaN(w) && h > 0) {
+    const bmi = w / Math.pow(h / 100, 2);
+    bmiField.value = bmi.toFixed(2) + ' kg/m²';
+    let cat, color;
+    if (bmi < 18.5)      { cat = 'Kurus (Underweight)';          color = '#0891b2'; }
+    else if (bmi < 25)   { cat = 'Normal';                        color = '#059669'; }
+    else if (bmi < 30)   { cat = 'Kelebihan Berat Badan (Overweight)'; color = '#f59e0b'; }
+    else                 { cat = 'Obesitas';                      color = '#ef4444'; }
+    bmiCatEl.textContent = cat;
+    bmiCatEl.style.color = color;
+    bmiCatEl.style.fontWeight = '600';
+  } else {
+    bmiField.value = '';
+    bmiCatEl.textContent = '';
+  }
+}
+
+
+function isiContoh(tipe) {
+  const v = (id,val) => document.getElementById(id).value = val;
+  if (tipe === 'sehat') {
+    v('f-age',32); v('f-gender',1); v('f-height',163); v('f-weight',58);
+    v('f-aphi',112); v('f-aplo',74); v('f-chol',1); v('f-gluc',1);
+    v('f-smoke',0); v('f-alco',0); v('f-active',1);
+  } else {
+    v('f-age',59); v('f-gender',2); v('f-height',171); v('f-weight',96);
+    v('f-aphi',162); v('f-aplo',102); v('f-chol',3); v('f-gluc',2);
+    v('f-smoke',1); v('f-alco',1); v('f-active',0);
+  }
+  hitungIMT();
+}
+
+// =============================
+// WARNA & UTIL CHART
+// =============================
+const WARNA = { sehat:'rgba(34,197,94,0.8)', risiko:'rgba(239,68,68,0.8)', biru:'rgba(59,130,246,0.8)', ungu:'rgba(139,92,246,0.8)', oranye:'rgba(249,115,22,0.8)', teal:'rgba(20,184,166,0.8)' };
+function warnaTeks() { return document.documentElement.classList.contains('dark') ? '#94a3b8' : '#475569'; }
+function warnaGrid() { return document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'; }
+function defaultChart() {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: warnaTeks(), font: { family: 'Inter', size: 11 }, boxWidth: 11 } } },
+    scales: {
+      x: { ticks: { color: warnaTeks(), font: { family: 'Inter', size: 10.5 } }, grid: { color: warnaGrid() } },
+      y: { ticks: { color: warnaTeks(), font: { family: 'Inter', size: 10.5 } }, grid: { color: warnaGrid() } }
+    }
+  };
+}
+
+// =============================
+// HALAMAN EDA
+// =============================
+function renderEDA() {
+  const eda = MODEL_DATA.eda;
+
+  new Chart(document.getElementById('chart-target'), {
+    type: 'doughnut',
+    data: { labels: ['Sehat','Berisiko'], datasets: [{ data: [eda.target_dist.Sehat, eda.target_dist.Berisiko], backgroundColor: [WARNA.sehat, WARNA.risiko], borderWidth: 0 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '62%' }
+  });
+  const total = eda.target_dist.Sehat + eda.target_dist.Berisiko;
+  document.getElementById('target-legend').innerHTML = [
+    { label:'Sehat', count:eda.target_dist.Sehat, color:WARNA.sehat },
+    { label:'Berisiko', count:eda.target_dist.Berisiko, color:WARNA.risiko }
+  ].map(it => `<div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:13px;height:13px;border-radius:50%;background:${it.color};flex-shrink:0;"></div>
+      <div><div style="font-weight:700;font-size:14px;">${it.count.toLocaleString('id-ID')} <span style="font-size:11px;font-weight:500;color:var(--text2)">(${(it.count/total*100).toFixed(1)}%)</span></div>
+      <div style="font-size:11.5px;color:var(--text2)">${it.label}</div></div></div>`).join('');
+
+  const dual = (canvasId, dataObj) => new Chart(document.getElementById(canvasId), {
+    type: 'bar',
+    data: { labels: dataObj.labels, datasets: [
+      { label:'Sehat', data: dataObj.no_cardio, backgroundColor: WARNA.sehat, borderRadius: 4 },
+      { label:'Berisiko', data: dataObj.cardio, backgroundColor: WARNA.risiko, borderRadius: 4 }
+    ]},
+    options: defaultChart()
+  });
+  dual('chart-age', eda.age);
+  dual('chart-chol', eda.cholesterol);
+  dual('chart-bp', eda.blood_pressure);
+  dual('chart-bmi', eda.bmi);
+  dual('chart-gender', eda.gender);
+
+  new Chart(document.getElementById('chart-lifestyle'), {
+    type: 'bar',
+    data: { labels: eda.lifestyle.labels, datasets: [{ label:'% Berisiko Jantung', data: eda.lifestyle.cardio_rate, backgroundColor: [WARNA.biru, WARNA.risiko, WARNA.biru, WARNA.risiko, WARNA.risiko, WARNA.sehat], borderRadius: 4 }] },
+    options: defaultChart()
+  });
+}
+
+// =============================
+// HALAMAN MODEL
+// =============================
+
+</script>
+</body>
+</html>
