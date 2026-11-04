@@ -21,17 +21,17 @@ Melalui antarmuka modern yang responsif (dilengkapi *Dark Mode*), pengguna dapat
 
 ---
 
-## ✨ Fitur Utama
+## Fitur Utama
 
-* **🔐 Sistem Autentikasi Pengguna:** Dilengkapi fitur Masuk dan Daftar berbasis `localStorage` untuk personalisasi sesi pengguna.
-* **⚡ Kalkulator Prediksi Real-Time:** Menghitung probabilitas status *Sehat* vs *Berisiko* menggunakan persamaan Gaussian Naive Bayes secara instan di sisi *client-side*.
-* **⚖️ Perhitungan IMT Otomatis:** Otomatis menghitung Indeks Massa Tubuh berdasarkan tinggi dan berat badan lengkap dengan indikator kategorinya.
-* **📊 Dashboard Eksplorasi Data (EDA):** Visualisasi data interaktif menggunakan *Chart.js* untuk melihat distribusi target, kelompok usia, kolesterol, tekanan darah, hingga korelasi gaya hidup terhadap risiko jantung.
-* **🌓 Mode Gelap (Dark Mode):** Kenyamanan visual ekstra dengan tombol pengalih tema terang dan gelap yang dinamis.
+* **Sistem Autentikasi Pengguna:** Dilengkapi fitur Masuk dan Daftar berbasis `localStorage` untuk personalisasi sesi pengguna.
+* **Kalkulator Prediksi Real-Time:** Menghitung probabilitas status *Sehat* vs *Berisiko* menggunakan persamaan Gaussian Naive Bayes secara instan di sisi *client-side*.
+* **Perhitungan IMT Otomatis:** Otomatis menghitung Indeks Massa Tubuh berdasarkan tinggi dan berat badan lengkap dengan indikator kategorinya.
+* **Dashboard Eksplorasi Data (EDA):** Visualisasi data interaktif menggunakan *Chart.js* untuk melihat distribusi target, kelompok usia, kolesterol, tekanan darah, hingga korelasi gaya hidup terhadap risiko jantung.
+* **Mode Gelap (Dark Mode):** Kenyamanan visual ekstra dengan tombol pengalih tema terang dan gelap yang dinamis.
 
 ---
 
-## 🖼️ Tangkapan Layar (Screenshots)
+## Tampilan Web
 
 > *Berikut adalah dokumentasi antarmuka dari aplikasi Cardio-Bayes:*
 
@@ -55,7 +55,7 @@ Melalui antarmuka modern yang responsif (dilengkapi *Dark Mode*), pengguna dapat
 
 ---
 
-## 🛠️ Struktur Teknologi
+## Struktur Teknologi
 
 * **Frontend:** HTML5, CSS3 (Custom Properties & Glassmorphism design), JavaScript (ES6+).
 * **Visualisasi Grafik:** [Chart.js v4.4.1](https://www.chart.js/)
@@ -64,7 +64,7 @@ Melalui antarmuka modern yang responsif (dilengkapi *Dark Mode*), pengguna dapat
 
 ---
 
-## 🚀 Cara Menjalankan Proyek (Quick Start)
+## Cara Menjalankan Proyek (Quick Start)
 
 Proyek ini dibangun murni berbasis web statis yang cerdas tanpa memerlukan instalasi *backend* yang rumit:
 
