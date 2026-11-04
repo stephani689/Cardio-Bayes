@@ -70,4 +70,4 @@ Proyek ini dibangun murni berbasis web statis yang cerdas tanpa memerlukan insta
 
 1. **Clone repository ini:**
    ```bash
-   git clone [https://github.com/username-anda/cardio-bayes.git](https://github.com/username-anda/cardio-bayes.git)
+   git clone [https://github.com/stephani689/Cardio-Bayes.git](https://github.com/stephani689/Cardio-Bayes.git)
