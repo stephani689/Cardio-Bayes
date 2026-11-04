@@ -51,7 +51,7 @@ Melalui antarmuka modern yang responsif (dilengkapi *Dark Mode*), pengguna dapat
 ![Dashboard EDA 1](assets/Data1.png)
 
 ### 5. Visualisasi Pengaruh Kolesterol & Tekanan Darah
-![Dashboard EDA 2](assets/data2.png)
+![Dashboard EDA 2](assets/Data2.png)
 
 ---
 
